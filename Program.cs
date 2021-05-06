@@ -1,21 +1,23 @@
-﻿// Using StreamReader and StreamWriter
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
+using System.Text;
 
 public static class Program {
-    static void Main(string[] arguments) {
-        
-        // Connect to acme.com Server via TCP on HTTP-Default-Port 80.
-        var tcpClient = new TcpClient("acme.com", 80);
-        
-        // Send a HTTP-Request for the Root-Page
-        var streamWriter = new StreamWriter(tcpClient.GetStream());
-        streamWriter.Write("GET / HTTP/1.1\r\nHost: acme.com\r\n\r\n");
-        
-        // Read the Response
-        var streamReader = new StreamReader(tcpClient.GetStream());
-        var result = streamReader.ReadToEnd();
-        Console.WriteLine(result);
+    static void Main() {
+        var tcpClient = new TcpClient();
+        const string webSite = "www.acme.com";
+        tcpClient.Connect(webSite, 80);
+        var stream = tcpClient.GetStream();
+        var send = Encoding.ASCII.GetBytes("GET / HTTP/1.1" + Environment.NewLine +
+                                           "Host: acme.com" + Environment.NewLine+Environment.NewLine);
+        stream.Write(send, 0, send.Length);
+            
+        var sr = new StreamReader(stream);
+        var str = sr.ReadToEnd();
+        //Console.WriteLine(str);
+        tcpClient.Close();
+        stream.Close();
     }
 }
