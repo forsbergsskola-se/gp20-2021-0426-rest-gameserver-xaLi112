@@ -19,6 +19,8 @@ public static class Program {
         //Console.WriteLine(str);
         tcpClient.Close();
         stream.Close();
+        
+        MainLoop(str);
     }
     static string Navigator(string subDir) {
         var tcpClient = new TcpClient();
