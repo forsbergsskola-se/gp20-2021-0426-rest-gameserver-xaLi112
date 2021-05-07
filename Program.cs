@@ -36,4 +36,33 @@ namespace GitHubExplorer
             
             return splitString;
         }
+	static async Task GetHtmlFromWebsite(string userName){
+            
+            httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("GitHubExplorer", "1.0"));
+
+            try{
+                var response = await httpClient.GetAsync(userName);
+                response.EnsureSuccessStatusCode();
+
+                var responseBody = await response.Content.ReadAsStringAsync();
+
+                Console.WriteLine(response);
+                Console.WriteLine(responseBody);
+            }
+            catch (HttpRequestException exception){
+                Console.WriteLine(exception);
+            }
+            
+            httpClient.Dispose();
+        }
+        
+        static void Main(string[] args){
+
+            token = LoadAndValidateSecrets().Token;
+            httpClient.BaseAddress = new Uri("https://api.github.com/users/");
+
+            var task = GetHtmlFromWebsite(myUserName);
+            task.Wait();
+        }
+    }
 }
