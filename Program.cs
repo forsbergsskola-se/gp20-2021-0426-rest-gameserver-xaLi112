@@ -24,7 +24,16 @@ namespace GitHubExplorer
                 File.WriteAllText("secrets.json", JsonSerializer.Serialize(secrets));
             }
  		else{
-               secrets = JsonSerializer.Deserialize<Secrets>(File.ReadAllText("secrets.json"));
+                secrets = JsonSerializer.Deserialize<Secrets>(File.ReadAllText("secrets.json"));
             }
+		if (!string.IsNullOrEmpty(secrets?.Token)) return secrets;
+            	throw new Exception($@"ERROR: Needs to define a token in file {Path.Combine(System.Environment 
+                .CurrentDirectory, "secrets.json")}");
+        }
+	static string[] StringSplit(this string stringToSplit)
+        {
+            var splitString = stringToSplit.Split(",");
+            
+            return splitString;
+        }
 }
-d
