@@ -1,57 +1,15 @@
-# GP20-2021-0426-Rest-Gameserver
-
-## Goal of this Assignment
-The goal of this assignment is to introduce you to developing REST-APIs using `C#`, `HTTP`, `JSON` and `ASP .NET Core`\
-In total, our steps will include:
-- An Acme.com Weblink Browser
-- Exploring an existing REST-API through HTTP
-- Building a Bikesharing Console Application
-- Building a REST Game App
-
-## Grading
-|Grade  |  Requirement |
-|-------|:-------------|
-<<<<<<< HEAD
-|Failed (F)| Everyone\* |
--------------------------------
-\*Just kidding, of course. I'm still working on this :P
-=======
-|Summa Cum laude (A*)| > 90%|
-| Magna Cum Laude (A)| 80-89%|
-|Cum Laude (B)| 70-79%|
-|Passed (C)| 60-69%|
-|Barely Passed (D)| 50-59% |
-|Insufficient (E)| 10-49% |
-|Failed (F)| < 10% |
--------------------------------
-Each of these grades expects the previous requirements as well as its own requirements to be fulfilled.
->>>>>>> LameScooter/main
-
-
-## Prerequisites / Requirements
-- Make sure, that .NET Core 5 SDK is installed from https://www.microsoft.com/net/download
-<<<<<<< HEAD
-- I recommend to use Jetbrains Rider as an IDE.\
-=======
-- I recommend to use Jetbrains Rider as an IDE.
->>>>>>> LameScooter/main
-- Install Unity Hub & Unity.
-
-## Remarks
-- In the first Exercise, we are not using any HTTP-Classes, but manually using the HTTP-Protocol with a TCP-Client for educational purposes.
-
-<<<<<<< HEAD
-
-## Part 1 - Tiny Browser:
+# Part 1 - Tiny Browser (50 Points):
 
 <img width="579" alt="image" src="https://user-images.githubusercontent.com/7360266/116148852-bcc7df80-a6e1-11eb-9282-370e37c97fc6.png">
 
+---
 
-
-### Goal
+## Goal
 To have a Acme.com Weblink Browser that prints the current page title as well as a navigatable list of all Links that can be found on the page.
 
-### Preparing a Project
+---
+
+## Preparing a Project
 Create a folder named `TinyBrowser`\
 Open the Terminal in that Folder
 Now, use the command `dotnet new console`\
@@ -60,29 +18,58 @@ Else, this command should have created a new C# Project for you. You can go ahea
 
 Add a `.gitignore` in your `TinyBrowser`-Folder that ignores anything you don't want to commit.\
 For C# Console Projects, that's at least the `/bin/` and `/obj/`-Folders.\
-Afterwards, you may safely go ahead and create a new commit `adds time server project`
+Afterwards, you may safely go ahead and create a new commit `adds tiny browser project`
 
-### Implementation
-- You will need: 
+---
+
+## Implementation
+
+### Required Methods
+
 - The `TcpClient`-class which can be created by using its constructor together with arguments for the host name as well as the port number.
   - `GetStream` again gets you the current stream used for the client. It returns a `Stream`.
   - `Close` needs to be called when you are done using the `TcpClient`.
 - The `Stream`-class is returned by `GetStream`
-  - `Write` allows you to send Bytes over the socket.
-  - `Read` allows you to read Bytes over the socket.
+  - `Write` allows you to send Bytes over the socket. (Consider using `StreamWriter` though)
+  - `Read` allows you to read Bytes over the socket. (Consider using `StreamReader` though)
   - `Close` needs to be called when you are done sending bytes over the stream.
+- The `StreamWriter`-class has a constructor that you need to pass a `Stream` into.
+  - `Write` allows you to send a string or any other data over the socket.
+- The `StreamReader`-class has a constructor that you need to pass a `Stream` into.
+  - `ReadToEnd` allows you to read a full string from the socket.
 - `Encoding.ASCII.GetBytes` Can convert a `string` to ASCII-`byte[]` for you.
-- `Encoding.ASCII.GetString` Can convert a `byte[]` to a `string`. 
+- `Encoding.ASCII.GetString` Can convert a `byte[]` to a `string`.
+- `string`
+  - `IndexOf(string value, int startIndex)` 
+    - Can Find the Index at which a `string` can be found within another. 
+    - Returns `-1` if no results were found.
+    - e.g.: "Hello World".IndexOf("ll") will return 2.
+    - e.g.: "Hello World".IndexOf("Planet") will return -1.
+  - `Substring(int startIndex, int length)`
+    - Returns the substring of a string between character number `startIndex` and `statIndex + length`.
+    - e.g.: "Hello World".Substring(3, 4) will return "lo W";
+  - `Path.Combine(string a, string b)`
+    - Returns a combined path of a and b. handles dot-notiation `.` and `..` correctly automatically.
 
-So, what is our server supposed to do?
+### Routines
+
 - Send a TCP Request to acme.com using Port 80
 - Using the HTTP Protocol
-  - I recommend trying your way with HTTP 0.9 first, then HTTP 1.1
+  - I recommend using HTTP 1.1.
+  - Make sure to follow the Exact guidelines.
+  - Every line is supposed to end with `CRLF` (carriage return). In C# that's `"\r\n"`
+  - This is, what a HTTP/1.1-Request might look like:
+```http
+GET / HTTP/1.1
+Host: google.com
+
+```
+  - Especially don't forget the empty line at the end of your request and the Host-Header :)
 - Use a TCP Client.
 - Get the Stream.
 - Write a valid HTTP-Request to the Stream.
 - Fetch the response from the Website
-- Search the respone for an occurence of `<title>
+- Search the respone for an occurence of `<title>`
     - `<title>` is the start tag of an HTML `title`-Element used for page titles (visible on tabs) in browsers
     - `</title>` is the end tag of an HTML `title`-Element
     - Everything inbetween is the HTML-Content of the Element
@@ -111,12 +98,21 @@ So, what is our server supposed to do?
   - it should be a Number between 0 and the number of options
   - Follow the link that the user wants to follow and start at the beginning of the application again
   - (Send a TCP Request to acme.com...)
- 
+  - There is a few cases of URLs to consider. Some of them might be links, but...:
+    - not to another web page, e.g. `<a href="image.png">` might be a link to an image.
+      - i suggest skipping these links
+    - to another host, e.g. `<a href="http://google.com/search/settings">`
+      - replace the host with `google.com` and the path with `/search/settings/`
+    - to a local url, e.g. `<a href="search"> when currently being at host `acme.com` and the path `/hello/world/`
+      - keep the host and replace the path with `/hello/world/search/`
+    - to a parent url, e.g. `<a href="../another"> when currently being at host `acme.com` and the path `/hello/world/`
+      - keep the host and simply replace the path with `/hello/world/../another/` or `/hello/another/`
 
+---
 
-
-
-### Bonus:
+## Bonus:
+- Prettify the Output: Replace any link description that's longer than 15 chars with a shorter version of the first and last 6 chars and ... in the middle.
+  - e.g.: `"HelloMyPrettyWorld"` becomes `"HelloM..yWorld"`
 - Implement a Back-Button: If the User inputs 'b' for Back, go back (to the previously visited Website.
   - Make sure, to not go forward, when going back twice :)
 - Implement a Forward-Button: If the User inputs 'f' for Forward, go forward.
@@ -132,24 +128,3 @@ So, what is our server supposed to do?
   - Do this optional (as in replacable with interfaces)
   - So that I can see, that you also got a solution working
   - Where you manually search the string
-
-
-## Part 2: GitHub Explorer
-
-- TBD
-
-## Part 3: Lame-Scooter
-
-- TBD
-
-## Part 4: 
-
-- TBD
-=======
-## List of Assignments:
-- 1. [Tiny Browser](assignments/assignment1.md)
-- 2. [Github Explorer](assignments/assignment2.md)
-- 3. [Lame Scooter](assignments/assignment3.md)
-- 4. [MMO-RPG Pre-Production](assignments/assignment4-preproduction.md)
-- 5. [MMO-RPG](assignments/assignment4.md)
->>>>>>> LameScooter/main
